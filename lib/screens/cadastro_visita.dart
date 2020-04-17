@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:visitas/database/daos/cliente_dao.dart';
+import 'package:visitas/database/daos/contato_dao.dart';
+import 'package:visitas/database/daos/visita_dao.dart';
 import 'package:visitas/enviroment/TipoVisita.dart';
 import 'package:visitas/enviroment/opcao_data.dart';
 import 'package:visitas/models/cliente_model.dart';
+import 'package:visitas/models/contato_model.dart';
+import 'package:visitas/models/visita_model.dart';
 
 class CadastroVisita extends StatefulWidget {
   static String routeName = '/';
@@ -14,19 +18,24 @@ class CadastroVisita extends StatefulWidget {
 class _CadastroVisitaState extends State<CadastroVisita> {
   TextEditingController _campoTitulo = TextEditingController();
   ClienteDao clienteDao = ClienteDao();
-  List<Cliente> clientes = List();
   Cliente selectCliente;
+  ContatoDao contatoDao = ContatoDao();
+  Contato selectContato;
+  List<Cliente> clientes = List();
+  List<Contato> contatos = List();
+
   TiposVisita _tipoVisita = TiposVisita.RECLAMACAO;
   final _formKey = GlobalKey<FormState>();
   DateTime data = DateTime.now();
-
 
   @override
   void initState() {
     super.initState();
     clienteDao.listaTodos().then((clientes) {
       this.clientes = clientes;
-      print(this.clientes);
+    });
+    contatoDao.listaTodos().then((contatos) {
+      this.contatos = contatos;
     });
   }
 
@@ -38,7 +47,6 @@ class _CadastroVisitaState extends State<CadastroVisita> {
           groupValue: this._tipoVisita,
           onChanged: (TiposVisita value) {
             setState(() {
-              print(value.index);
               this._tipoVisita = value;
             });
           },
@@ -80,35 +88,118 @@ class _CadastroVisitaState extends State<CadastroVisita> {
     );
   }
 
-  Widget selCliente() {
-    return DropdownButtonFormField<Cliente>(
-      hint: Text("Selecione o cliente"),
-      itemHeight: 50,
-      value: selectCliente,
-      icon: Icon(Icons.arrow_downward),
-      iconSize: 24,
-      //elevation: 16,
-      items: this.clientes.map((Cliente c) {
-        return DropdownMenuItem<Cliente>(
-          value: c,
-          child: Text(c.nome),
-        );
-      }).toList(),
-      onChanged: (c) {
-        _formKey.currentState.validate();
-        setState(() {
-          this.selectCliente = c;
-        });
-      },
-      validator: (value) {
-        if (value == null) {
-          return 'Escolha o cliente';
-        }
-        return null;
-      },
-      decoration: InputDecoration(
-          //border: OutlineInputBorder(),
+  Widget popupCadContato(BuildContext context){
+    return AlertDialog(
+      title: Text('Inclusão de contato'),
+      content: Text('----'),
+      actions: <Widget>[
+        FlatButton(
+          child: Text('Cancelar'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        FlatButton(
+          child: Text('Incluir'),
+          onPressed: () {
+            setState(() {
+
+              this.selectContato = this.contatos[0];
+            });
+            Navigator.pop(context);
+
+          },
+        )
+
+      ],
+
+    );
+  }
+
+  Widget selContato() {
+    return Row(
+      children: <Widget>[
+        Container(
+          width: MediaQuery.of(context).size.width - 120,
+          child: DropdownButtonFormField<Contato>(
+            hint: Text('Selecione o contato'),
+            itemHeight: 50,
+            value: selectContato,
+            icon: Icon(Icons.arrow_downward),
+            iconSize: 24,
+            items: this.contatos.map((Contato c) {
+              return DropdownMenuItem<Contato>(
+                value: c,
+                child: Text(c.nome),
+              );
+            }).toList(),
+            onChanged: (c) {
+              _formKey.currentState.validate();
+              setState(() {
+                this.selectContato = c;
+              });
+            },
           ),
+        ),
+        Container(
+          width: 90,
+          child: IconButton(
+            icon: Icon(Icons.assignment),
+            onPressed: () {
+              showDialog(context: context, builder: (context){
+                return popupCadContato(context);
+              });
+            },
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget selCliente() {
+    return Row(
+      children: <Widget>[
+        Container(
+          width: MediaQuery.of(context).size.width - 120,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButtonFormField<Cliente>(
+              hint: Text("Selecione o cliente"),
+              itemHeight: 50,
+              value: selectCliente,
+              icon: Icon(Icons.arrow_downward),
+              iconSize: 24,
+              //elevation: 16,
+              items: this.clientes.map((Cliente c) {
+                return DropdownMenuItem<Cliente>(
+                  value: c,
+                  child: Text(c.nome),
+                );
+              }).toList(),
+              onChanged: (c) {
+                setState(() {
+                  this.selectCliente = c;
+                });
+              },
+              validator: (value) {
+                if (value == null) {
+                  return 'Escolha o cliente';
+                }
+                return null;
+              },
+            ),
+          ),
+          //IconButton(icon: Icon(Icons.assignment), onPressed: () {} ,)
+        ),
+        Container(
+          width: 90,
+          child: IconButton(
+            icon: Icon(Icons.assignment),
+            onPressed: () {},
+          ),
+        )
+
+        //
+      ],
     );
   }
 
@@ -116,7 +207,7 @@ class _CadastroVisitaState extends State<CadastroVisita> {
     String ano = this.data.year.toString();
     String mes = this.data.month.toString();
     String dia = this.data.day.toString();
-    if(opcaoData == 'label'){
+    if (opcaoData == 'label') {
       return "${dia}/${mes}/${ano}";
     }
     return '${ano}-${mes}-${dia}';
@@ -163,7 +254,7 @@ class _CadastroVisitaState extends State<CadastroVisita> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Inserir Visita'),
+          title: Text('Incluir Visita'),
         ),
         body: Form(
           key: _formKey,
@@ -175,8 +266,9 @@ class _CadastroVisitaState extends State<CadastroVisita> {
               campoTipoAcompanhamento(context),
               campoTitulo(),
               selCliente(),
+              selContato(),
               SizedBox(
-                height: 10,
+                height: 30,
               ),
               submit()
             ],

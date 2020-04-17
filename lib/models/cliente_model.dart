@@ -6,7 +6,7 @@ class Cliente {
 
   @override
   String toString() {
-    return 'Cliente{nome: $nome}';
+    return 'Cliente{id: $id, nome: $nome}';
   }
 
   Cliente.fromMap(Map map)
