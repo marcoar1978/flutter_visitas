@@ -15,20 +15,22 @@ class ContatoDao {
   static String _telefone = 'telefone';
   static String _email = 'email';
 
-  Future<int> incluir(Contato contato) async {
+  Future<Contato> incluir(Contato contato) async {
     Database db = await getDatabase();
 
     Map<String, dynamic> contatoMap = Map();
     contatoMap[_nome] = contato.nome;
     contatoMap[_telefone] = contato.telefone;
     contatoMap[_email] = contato.email;
-    return db.insert(_tableName, contatoMap);
+    int contatoId = await db.insert(_tableName, contatoMap);
+    contato.id = contatoId;
+    return contato;
   }
 
   Future<List<Contato>> listaTodos() async {
     Database db = await getDatabase();
     List<Map<String, dynamic>> contatosMap =
-        await db.rawQuery("SELECT * FROM $_tableName");
+        await db.rawQuery("SELECT * FROM $_tableName ORDER BY $_nome");
 
     List<Contato> contatos = List();
     for (Map<String, dynamic> contatoMap in contatosMap) {

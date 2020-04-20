@@ -6,10 +6,9 @@ class Contato {
 
   Contato(this.id, this.nome, this.telefone, this.email);
 
-
   @override
   String toString() {
-    return 'Contato{id: $id, nome: $nome}';
+    return 'Contato{id: $id, nome: $nome, telefone: $telefone, email: $email}';
   }
 
   Contato.fromMap(Map<String, dynamic> map)

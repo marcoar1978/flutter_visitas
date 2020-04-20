@@ -5,11 +5,15 @@ import 'package:visitas/database/daos/visita_dao.dart';
 import 'package:visitas/enviroment/TipoVisita.dart';
 import 'package:visitas/enviroment/opcao_data.dart';
 import 'package:visitas/models/cliente_model.dart';
+import 'package:visitas/models/parametros/clientes_parametro.dart';
+import 'package:visitas/models/parametros/contatos_parametro.dart';
 import 'package:visitas/models/contato_model.dart';
+import 'package:visitas/models/parametros/contatos_parametro.dart';
 import 'package:visitas/models/visita_model.dart';
+import 'package:visitas/screens/lista_visitas.dart';
 
 class CadastroVisita extends StatefulWidget {
-  static String routeName = '/';
+  static String routeName = '/cadastroVisita';
 
   @override
   _CadastroVisitaState createState() => _CadastroVisitaState();
@@ -17,15 +21,25 @@ class CadastroVisita extends StatefulWidget {
 
 class _CadastroVisitaState extends State<CadastroVisita> {
   TextEditingController _campoTitulo = TextEditingController();
+  TextEditingController _campoNomeContato = TextEditingController();
+  TextEditingController _campoEmailContato = TextEditingController();
+  TextEditingController _campoTelefoneContato = TextEditingController();
+  TextEditingController _campoNomeCliente = TextEditingController();
   ClienteDao clienteDao = ClienteDao();
   Cliente selectCliente;
   ContatoDao contatoDao = ContatoDao();
+  VisitaDao visitaDao = VisitaDao();
   Contato selectContato;
   List<Cliente> clientes = List();
   List<Contato> contatos = List();
+  ContatosParametro contatosParametro;
+  ClientesParametro clientesParametro;
 
   TiposVisita _tipoVisita = TiposVisita.RECLAMACAO;
   final _formKey = GlobalKey<FormState>();
+  final _formKeyContato = GlobalKey<FormState>();
+  final _formKeyCliente = GlobalKey<FormState>();
+
   DateTime data = DateTime.now();
 
   @override
@@ -76,9 +90,7 @@ class _CadastroVisitaState extends State<CadastroVisita> {
         labelText: 'Título',
         //border: OutlineInputBorder(),
       ),
-      onChanged: (text) {
-        _formKey.currentState.validate();
-      },
+      onChanged: (text) {},
       validator: (text) {
         if (text.isEmpty) {
           return 'Digite o título';
@@ -88,31 +100,123 @@ class _CadastroVisitaState extends State<CadastroVisita> {
     );
   }
 
-  Widget popupCadContato(BuildContext context){
+  Widget popupCadCliente(BuildContext context) {
     return AlertDialog(
-      title: Text('Inclusão de contato'),
-      content: Text('----'),
+      title: Text('Inclusão de Cliente'),
+      content: Form(
+        key: this._formKeyCliente,
+        child: Container(
+          height: 100,
+          child: ListView(
+            children: <Widget>[
+              TextFormField(
+                controller: this._campoNomeCliente,
+                decoration: InputDecoration(
+                    labelText: 'Nome', icon: Icon(Icons.account_circle)),
+                validator: (text) {
+                  if (text.isEmpty) {
+                    return 'Digite o nome';
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: <Widget>[
+        FlatButton(
+            child: Text('Cancelar'),
+            onPressed: () {
+              Navigator.pop(context);
+            }),
+        FlatButton(
+          child: Text('Incluir'),
+          onPressed: () async {
+            if (this._formKeyCliente.currentState.validate()) {
+              ClientesParametro clientesParametro = ClientesParametro();
+              clientesParametro.cliente = await clienteDao.incluir(
+                Cliente(0, this._campoNomeCliente.text),
+              );
+              clientesParametro.clientes = await clienteDao.listaTodos();
+              Navigator.pushNamed(context, CadastroVisita.routeName,
+                  arguments: clientesParametro);
+            }
+          },
+        )
+      ],
+    );
+  }
+
+  Widget popupCadContato(BuildContext context) {
+    return AlertDialog(
+      title: Text('Inclusão de Contato'),
+      content: Form(
+        key: this._formKeyContato,
+        child: Container(
+          height: 250,
+          child: ListView(
+            children: <Widget>[
+              //Icon(Icons.account_circle),
+              TextFormField(
+                controller: this._campoNomeContato,
+                decoration: InputDecoration(
+                  labelText: 'Nome',
+                  icon: Icon(Icons.account_circle),
+                ),
+                validator: (text) {
+                  if (text.isEmpty) {
+                    return 'Digite o nome';
+                  }
+                },
+              ),
+              TextFormField(
+                controller: this._campoTelefoneContato,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: 'Telefone',
+                  icon: Icon(Icons.phone),
+                ),
+              ),
+              TextFormField(
+                controller: this._campoEmailContato,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  icon: Icon(Icons.email),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       actions: <Widget>[
         FlatButton(
           child: Text('Cancelar'),
           onPressed: () {
-            Navigator.pop(context);
+            //Navigator.pop(context);
+            Navigator.pushNamed(context, CadastroVisita.routeName);
           },
         ),
         FlatButton(
           child: Text('Incluir'),
-          onPressed: () {
-            setState(() {
-
-              this.selectContato = this.contatos[0];
-            });
-            Navigator.pop(context);
-
+          onPressed: () async {
+            if (_formKeyContato.currentState.validate()) {
+              Contato contato = Contato(
+                0,
+                this._campoNomeContato.text,
+                this._campoTelefoneContato.text,
+                this._campoEmailContato.text,
+              );
+              contato = await contatoDao.incluir(contato);
+              ContatosParametro contatosParametro = ContatosParametro();
+              contatosParametro.contatos = await contatoDao.listaTodos();
+              contatosParametro.contato = contato;
+              Navigator.pushNamed(context, CadastroVisita.routeName,
+                  arguments: contatosParametro);
+            }
           },
         )
-
       ],
-
     );
   }
 
@@ -130,14 +234,23 @@ class _CadastroVisitaState extends State<CadastroVisita> {
             items: this.contatos.map((Contato c) {
               return DropdownMenuItem<Contato>(
                 value: c,
-                child: Text(c.nome),
+                child: Row(
+                  children: <Widget>[
+                    Text(c.nome),
+                  ],
+                ),
               );
             }).toList(),
             onChanged: (c) {
-              _formKey.currentState.validate();
               setState(() {
                 this.selectContato = c;
               });
+            },
+            validator: (value) {
+              if (value == null) {
+                return 'Escolha o contato';
+              }
+              return null;
             },
           ),
         ),
@@ -146,9 +259,11 @@ class _CadastroVisitaState extends State<CadastroVisita> {
           child: IconButton(
             icon: Icon(Icons.assignment),
             onPressed: () {
-              showDialog(context: context, builder: (context){
-                return popupCadContato(context);
-              });
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return popupCadContato(context);
+                  });
             },
           ),
         )
@@ -194,7 +309,13 @@ class _CadastroVisitaState extends State<CadastroVisita> {
           width: 90,
           child: IconButton(
             icon: Icon(Icons.assignment),
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return popupCadCliente(context);
+                  });
+            },
           ),
         )
 
@@ -244,16 +365,58 @@ class _CadastroVisitaState extends State<CadastroVisita> {
   Widget submit() {
     return RaisedButton(
       child: Text('Incluir'),
-      onPressed: () {
-        if (_formKey.currentState.validate()) {}
+      onPressed: () async {
+        if (_formKey.currentState.validate()) {
+          Visita visita = Visita(
+            id: 0,
+            titulo: this._campoTitulo.text,
+            cliente: this.selectCliente.id,
+            tipoVisita: this._tipoVisita.index,
+            data: this.formatadataLabel(opcaoData: "db"),
+            obs: '',
+            contato: this.selectContato.id,
+          );
+          await this.visitaDao.incluir(visita);
+          Navigator.of(context).pushNamed('/');
+        }
       },
     );
   }
 
+  void recepcaoParamContato() {
+    if (ModalRoute.of(context).settings.arguments != null &&
+        ModalRoute.of(context).settings.arguments is ContatosParametro) {
+      contatosParametro = ModalRoute.of(context).settings.arguments;
+      setState(() {
+        this.contatos = contatosParametro.contatos;
+        //this.selectContato = contatosParametro.contato ?? this.selectContato;
+      });
+    }
+  }
+
+  void recepcaoParamCliente() {
+    if (ModalRoute.of(context).settings.arguments != null &&
+        ModalRoute.of(context).settings.arguments is ClientesParametro) {
+      clientesParametro = ModalRoute.of(context).settings.arguments;
+      setState(() {
+        this.clientes = clientesParametro.clientes;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    this.recepcaoParamContato();
+    this.recepcaoParamCliente();
+
     return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pushNamed(ListaVisitas.routeName);
+            },
+          ),
           title: Text('Incluir Visita'),
         ),
         body: Form(

@@ -11,11 +11,13 @@ class ClienteDao {
   static String _id = 'id';
   static String _nome = 'nome';
 
-  Future<int> incluir(Cliente cliente) async {
+  Future<Cliente> incluir(Cliente cliente) async {
     Database db = await getDatabase();
     Map<String, dynamic> clienteMap = Map();
     clienteMap['nome'] = cliente.nome;
-    return db.insert(_tableName, clienteMap);
+    int clienteId = await db.insert(_tableName, clienteMap);
+    cliente.id = clienteId;
+    return cliente;
   }
 
   Future<List<Cliente>> listaTodos() async {

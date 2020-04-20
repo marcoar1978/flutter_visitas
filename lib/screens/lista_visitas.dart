@@ -3,10 +3,12 @@ import 'package:visitas/components/progress.dart';
 import 'package:visitas/database/daos/visita_dao.dart';
 import 'package:visitas/models/visita_model.dart';
 import 'package:visitas/screens/cadastro_visita.dart';
+import 'package:visitas/screens/consulta_visita.dart';
 import 'package:visitas/screens/menu_drawer.dart';
+import 'package:visitas/screens/tab_visitas.dart';
 
 class ListaVisitas extends StatefulWidget {
-  static String routeName = '/--';
+  static String routeName = '/';
 
   @override
   _ListaVisitasState createState() => _ListaVisitasState();
@@ -17,6 +19,7 @@ class _ListaVisitasState extends State<ListaVisitas> {
   String pesquisa = null;
   VisitaDao visitaDao = VisitaDao();
   List<Visita> visitas = List();
+
 
   Widget _listaVisitas(BuildContext context) {
     return FutureBuilder(
@@ -68,13 +71,16 @@ class _ListaVisitasState extends State<ListaVisitas> {
 
   Widget _cardLista(BuildContext context, Visita visita) {
     return Card(
+      elevation: 8,
       child: ListTile(
         title: Text(
           visita.titulo,
           style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500),
         ),
-        subtitle:
-            Text(_formataData(visita.data), style: TextStyle(fontSize: 12.0)),
+        subtitle: Text(
+          _formataData(visita.data),
+          style: TextStyle(fontSize: 12.0),
+        ),
         onTap: () {
           this._menuBottom(context, visita);
         },
@@ -119,13 +125,18 @@ class _ListaVisitasState extends State<ListaVisitas> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
-                            child: Row(
-                          children: <Widget>[
-                            Icon(Icons.zoom_in),
-                            SizedBox(width: 10),
-                            Text('Visualizar',
-                                style: TextStyle(fontSize: 16.0)),
-                          ],
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pushNamed(TabVisitas.routeName, arguments: visita);
+                              },
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.zoom_in),
+                              SizedBox(width: 10),
+                              Text('Visualizar',
+                                  style: TextStyle(fontSize: 16.0)),
+                            ],
+                          ),
                         )),
                       ),
                       Padding(
