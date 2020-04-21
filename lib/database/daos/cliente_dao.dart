@@ -22,7 +22,7 @@ class ClienteDao {
 
   Future<List<Cliente>> listaTodos() async {
     Database db = await getDatabase();
-    List<Map<String, dynamic>> result = await db.query(_tableName);
+    List<Map<String, dynamic>> result = await db.rawQuery('SELECT * FROm $_tableName ORDER BY $_nome');
 
     List<Cliente> clientes = List();
     for (Map<String, dynamic> map in result) {
@@ -32,5 +32,15 @@ class ClienteDao {
     }
 
     return clientes;
+  }
+
+  Future<Cliente> buscaPorId(int clienteId) async {
+    Database db = await getDatabase();
+    List<Map<String, dynamic>> clientes = await db.query(
+      _tableName,
+      where: 'id = ?',
+      whereArgs: [clienteId],
+    );
+    return Cliente.fromMap(clientes.first);
   }
 }

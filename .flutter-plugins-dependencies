@@ -1,1 +1,1 @@
-{"dependencyGraph":[{"name":"sqflite","dependencies":[]}]}
+{"dependencyGraph":[{"name":"flutter_plugin_android_lifecycle","dependencies":[]},{"name":"image_picker","dependencies":["flutter_plugin_android_lifecycle"]},{"name":"image_picker_modern","dependencies":[]},{"name":"path_provider","dependencies":["path_provider_macos"]},{"name":"path_provider_macos","dependencies":[]},{"name":"sqflite","dependencies":[]}]}

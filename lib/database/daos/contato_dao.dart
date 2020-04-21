@@ -39,4 +39,13 @@ class ContatoDao {
     }
     return contatos;
   }
+
+  Future<Contato> buscaPorId(int contatoId) async {
+    Database db = await getDatabase();
+
+    List<Map<String, dynamic>> contatos = await db.rawQuery('SELECT * FROM $_tableName  WHERE id = $contatoId');
+    print(contatos.first);
+    return Contato.fromMap(contatos.first);
+
+  }
 }

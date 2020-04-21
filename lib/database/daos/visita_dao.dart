@@ -32,13 +32,12 @@ class VisitaDao {
   Future<List<Visita>> consultaPorTitulo(String titulo) async {
     Database db = await getDatabase();
     List<Map<String, dynamic>> result;
-    if(titulo != null){
-      print('if');
-      result = await db.rawQuery("SELECT * FROM $tableName WHERE titulo LIKE '%$titulo%'");
-    }
-    else{
-      print('else');
-      result = await db.rawQuery("SELECT * FROM $tableName ORDER BY $_id DESC LIMIT 10");
+    if (titulo != null) {
+      result = await db
+          .rawQuery("SELECT * FROM $tableName WHERE titulo LIKE '%$titulo%'");
+    } else {
+      result = await db
+          .rawQuery("SELECT * FROM $tableName ORDER BY $_id DESC LIMIT 10");
     }
 
     List<Visita> visitas = List();

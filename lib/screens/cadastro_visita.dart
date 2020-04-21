@@ -138,8 +138,13 @@ class _CadastroVisitaState extends State<CadastroVisita> {
                 Cliente(0, this._campoNomeCliente.text),
               );
               clientesParametro.clientes = await clienteDao.listaTodos();
-              Navigator.pushNamed(context, CadastroVisita.routeName,
-                  arguments: clientesParametro);
+              //Navigator.pushNamed(context, CadastroVisita.routeName,
+              //    arguments: clientesParametro);
+              setState(() {
+                this.clientes = clientesParametro.clientes;
+                this._campoNomeCliente.text = '';
+                Navigator.pop(context);
+              });
             }
           },
         )
@@ -193,8 +198,7 @@ class _CadastroVisitaState extends State<CadastroVisita> {
         FlatButton(
           child: Text('Cancelar'),
           onPressed: () {
-            //Navigator.pop(context);
-            Navigator.pushNamed(context, CadastroVisita.routeName);
+             Navigator.pop(context);
           },
         ),
         FlatButton(
@@ -211,8 +215,13 @@ class _CadastroVisitaState extends State<CadastroVisita> {
               ContatosParametro contatosParametro = ContatosParametro();
               contatosParametro.contatos = await contatoDao.listaTodos();
               contatosParametro.contato = contato;
-              Navigator.pushNamed(context, CadastroVisita.routeName,
-                  arguments: contatosParametro);
+              this._campoNomeContato.text = '';
+              this._campoTelefoneContato.text = '';
+              this._campoEmailContato.text = '';
+              setState(() {
+                this.contatos = contatosParametro.contatos;
+                Navigator.pop(context);
+              });
             }
           },
         )

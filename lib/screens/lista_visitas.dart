@@ -4,6 +4,7 @@ import 'package:visitas/database/daos/visita_dao.dart';
 import 'package:visitas/models/visita_model.dart';
 import 'package:visitas/screens/cadastro_visita.dart';
 import 'package:visitas/screens/consulta_visita.dart';
+import 'package:visitas/screens/inclusao_fotos.dart';
 import 'package:visitas/screens/menu_drawer.dart';
 import 'package:visitas/screens/tab_visitas.dart';
 
@@ -19,7 +20,6 @@ class _ListaVisitasState extends State<ListaVisitas> {
   String pesquisa = null;
   VisitaDao visitaDao = VisitaDao();
   List<Visita> visitas = List();
-
 
   Widget _listaVisitas(BuildContext context) {
     return FutureBuilder(
@@ -125,10 +125,23 @@ class _ListaVisitasState extends State<ListaVisitas> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Center(
+                            child: Text(
+                          visita.titulo,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 16.0),
+                        )),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Center(
                             child: GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pushNamed(TabVisitas.routeName, arguments: visita);
-                              },
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                                TabVisitas.routeName,
+                                arguments: visita);
+                          },
                           child: Row(
                             children: <Widget>[
                               Icon(Icons.zoom_in),
@@ -141,25 +154,41 @@ class _ListaVisitasState extends State<ListaVisitas> {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Center(
-                            child: Row(
-                          children: <Widget>[
-                            Icon(Icons.edit),
-                            SizedBox(width: 10),
-                            Text('Editar', style: TextStyle(fontSize: 16.0)),
-                          ],
-                        )),
+                        child: GestureDetector(
+                          onTap: () {
+                            //Navigator.of(context).pushNamed(
+                            //  InclusaoFoto.routeName,
+                            // arguments: visita,
+                            //);
+                          },
+                          child: Center(
+                              child: Row(
+                            children: <Widget>[
+                              Icon(Icons.edit),
+                              SizedBox(width: 10),
+                              Text('Editar', style: TextStyle(fontSize: 16.0)),
+                            ],
+                          )),
+                        ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Center(
-                          child: Row(
-                            children: <Widget>[
-                              Icon(Icons.camera_alt),
-                              SizedBox(width: 10),
-                              Text('Incluir Fotos',
-                                  style: TextStyle(fontSize: 16.0)),
-                            ],
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pushNamed(
+                              InclusaoFoto.routeName,
+                              arguments: visita,
+                            );
+                          },
+                          child: Center(
+                            child: Row(
+                              children: <Widget>[
+                                Icon(Icons.camera_alt),
+                                SizedBox(width: 10),
+                                Text('Incluir Fotos',
+                                    style: TextStyle(fontSize: 16.0)),
+                              ],
+                            ),
                           ),
                         ),
                       ),
